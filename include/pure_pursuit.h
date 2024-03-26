@@ -115,7 +115,8 @@ void PursueCurve(CubicBezier *curve)
     endDirVec.normalize();
 
     Vector2d currentDir(0.0, 1.0), baseDir(0.0, 1.0);
-    cout << "drift start" << endl;
+    float startTime = Brain.timer(msec);
+    cout << "drift start" << Odometry.pos.transpose() << endl;
     while (PurePursuitFlag)
     {
         // update robot pos
@@ -213,23 +214,24 @@ void PursueCurve(CubicBezier *curve)
             endTime++;
         else
             endTime = 0;
-        if (endTime > 5 && robotSpeed <= 0.02)
+        if (endTime > 5 && robotSpeed <= 0.3)
             break;
         if (endflag && currentDir.dot(endDirVec) <= 0)
             break;
 
         printCounter++;
-        if (printCounter == 20)
+        if (printCounter == 40)
         {
             printCounter = 0;
             // cout << " target point: " << targetPoint.transpose() << " percent: " << t_intersection << " rotErr: " << rad2deg(rotErr) << " " << ld << endl;
             // cout << robotPos.transpose() << linSpeed << "  " << angSpeed << " time:" << Brain.timer(msec) << endl;
             // cout << "--------" << endl;
+            cout << robotPos.transpose() << " time: " << Brain.timer(msec) - startTime << endl;
         }
 
         delay(5);
     }
-    cout << " finished point " << robotPos.transpose() << endl;
+    cout << "finished point " << robotPos.transpose() << " finished time: " << Brain.timer(msec) - startTime << endl;
     drive(0, 0);
 }
 

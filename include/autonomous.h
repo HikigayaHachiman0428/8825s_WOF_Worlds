@@ -502,7 +502,8 @@ int genius_route()
     // timerDrive(50, 350);
     // timerDrive(-100, 450);
     closeLeft;
-    hang.set(1);
+    hangL.set(1);
+    hangR.set(1);
     SPLINECOUNT = 1;
     // catapult returns to start position
     WAYPOINTS[0] = wayPointMat{
@@ -535,6 +536,200 @@ int genius_route()
     }
 
     return 0;
+}
+
+void innerFAST()
+{
+    moveItk(100);
+    rightWing.set(1);
+    encoderDrive(-100, wheelDeg2cm(-1930));
+    PIDTurn(-315, 3, 0.5);
+    rightWing.set(0);
+    encoderDrive(50, wheelDeg2cm(200));
+    delay(50);
+    PIDDrive(wheelDeg2cm(-1850));
+    PIDTurn(-370);
+    // moveItk(-100)
+    // leftWing.set(1);
+    timerDrive(30, 120); // 30 50
+    PIDDrift_new(42, 58, -450);
+    leftWing.set(1);
+    timerDrive(70, 300);
+    moveItk(-100);
+    leftWing.set(0);
+    timerDrive(-30, 300);
+    PIDTurn(-400);
+    PIDDrive(wheelDeg2cm(-1350));
+    PIDTurn(-270);
+    moveItk(100);
+    encoderDrive(50, wheelDeg2cm(500));
+    delay(100);
+    timerDrive(-30, 100);
+    PIDTurn(-270);
+    PIDDrive(wheelDeg2cm(-950));
+    PIDTurn(180, 5);
+    timerDrive(-60, 400);
+    // PIDDrift_new(30, 70, -135);
+    timerDrive(30, 100);
+    PIDTurn(-45);
+    rightWing.set(1);
+    timerDrive(30, 600);
+    drive(-10, 100);
+    delay(150);
+    drive(10, -100);
+    delay(150);
+    drive(0, 0);
+    timerDrive(-40, 100);
+    rightWing.set(0);
+    timerDrive(-40, 200);
+    leftWing.set(1);
+    timerDrive(40, 800);
+
+    PIDDrift_new(30, 70, 180, 5);
+    timerDrive(100, 400);
+    moveItk(-100);
+    timerDrive(-50, 300);
+    moveItk(100);
+    timerDrive(100, 400);
+    moveItk(-100);
+    leftWing.set(0);
+    timerDrive(-30, 200);
+
+    PIDTurn(90);
+    encoderDrive(100, wheelDeg2cm(2100));
+    leftWing.set(1);
+    drive(30, -30);
+    delay(250);
+    drive(0);
+}
+
+void outer_awp()
+{
+    cout << " ---- 15s Starting ---- " << endl;
+    float startTime = Brain.Timer;
+    timerDrive(-40, 200);
+    moveItk(-100);
+    timerDrive(30, 300);
+    rightFrontWing.set(1);
+    drive(-20, 100);
+    delay(150);
+    drive(20, -100);
+    delay(150);
+    drive(0, 0);
+    rightFrontWing.set(0);
+    PIDDrift_new(20, 80, -90);
+    // leftFrontWing.set(1);
+    encoderDrive(70, 1800);
+    PIDDrive(-2100 * extGearRatio / wheelRadius);
+    PIDTurn(180);
+    encoderDrive(60, -600);
+    PIDTurn(90);
+    leftWing.set(1);
+    encoderDrive(60, -2000);
+    drive(-20, -20, 80, getGyro);
+    cout << "endTime: " << Brain.Timer - startTime << endl;
+}
+
+void outer_alliance()
+{
+    cout << " ---- 15s Starting ---- " << endl;
+    float startTime = Brain.Timer;
+    timerDrive(-40, 200);
+    moveItk(-100);
+    timerDrive(30, 300);
+    rightFrontWing.set(1);
+    drive(-20, 100);
+    delay(150);
+    drive(20, -100);
+    delay(150);
+    drive(0, 0);
+    encoderDrive(60, -1000);
+    PIDTurn(-30);
+    encoderDrive(60, 1000);
+    PIDDrift_new(35, 65, 180);
+    moveItk(100);
+    encoderDrive(60, 1600);
+    PIDDrive(-900 * extGearRatio / wheelRadius);
+    PIDTurn(-90, 5, 5);
+    leftFrontWing.set(1);
+    drive(60);
+    delay(200);
+    moveItk(-100);
+    delay(100);
+    drive(0);
+    leftFrontWing.set(0);
+    timerDrive(-30, 100);
+    PIDTurn(0, 5, 5);
+    rightWing.set(1);
+    timerDrive(-60, 700);
+    drive(-20, -20, -160, getGyro);
+    cout << "endTime: " << Brain.Timer - startTime << endl;
+}
+
+void innerElimination()
+{
+    cout << " ---- 15s Starting ---- " << endl;
+    float startTime = Brain.Timer;
+    task FLW(robFirstWing);
+    FLWT = 146;
+    moveItk(100);
+    rightWing.set(1);
+    encoderDrive(-100, -62);
+    PIDTurn(-315, 3, 0.5);
+    rightWing.set(0);
+    Kcor = 3;
+    encoderDrive(50, 9.4);
+    // delay(50);
+    timerDrive(-30, 100);
+    PIDTurn(-315);
+    PIDDrive(-94.86);
+    PIDTurn(-358, 5);
+    encoderDrive(-100, -110);
+    timerDrive(-60, 300);
+    timerDrive(30, 100);
+    // leftWing.set(1);
+    // PIDDrift_new(30,70,-90);
+    PIDTurn(-405);
+    // PIDTurn(-45);
+    rightWing.set(1);
+    // PIDDrive(3);
+    // delay(200);
+    timerDrive(30, 600);
+    drive(-10, 100);
+    delay(150);
+    drive(10, -100);
+    delay(150);
+    drive(0, 0);
+    timerDrive(-40, 100);
+    rightWing.set(0);
+    timerDrive(-40, 200);
+    leftWing.set(1);
+    timerDrive(40, 800);
+
+    PIDDrift_new(30, 70, -360, 5);
+    timerDrive(100, 400);
+    moveItk(-100);
+    timerDrive(-50, 300);
+    moveItk(100);
+    timerDrive(100, 400);
+    moveItk(-100);
+    leftWing.set(0);
+    // timerDrive(-30, 200);
+
+    /////
+    PIDDrive(-49.35);
+    PIDTurn(-289);
+    moveItk(100);
+    encoderDrive(70, 263.2);
+    delay(50);
+    PIDTurn(-375, 3, 0.5);
+    leftFrontWing.set(1);
+    rightFrontWing.set(1);
+    PIDDrift_new(45, 55, -450);
+    timerDrive(70, 600);
+    timerDrive(-100, 300);
+    ////
+    cout << "endTime: " << Brain.Timer - startTime << endl;
 }
 
 #endif

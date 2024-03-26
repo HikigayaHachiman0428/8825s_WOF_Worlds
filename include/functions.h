@@ -32,11 +32,8 @@ using namespace std;
 #define L1 Controller.ButtonL1
 #define L2 Controller.ButtonL2
 
-#define JFB Controller.Axis2.position()
+#define JFB Controller.Axis3.position()
 #define JLR Controller.Axis1.position()
-
-
-#define JFB_norm Controller.Axis3.position()
 
 #define delay(t) vexDelay(t)
 
@@ -53,12 +50,12 @@ using namespace std;
 #define openfrontRight rightFrontWing.set(1)
 #define closefrontRight rightFrontWing.set(0)
 
-extern double wheelRadius = 5.3975; // cm
-extern double extGearRatio = 2;
+extern double wheelRadius = 5.08; // cm
+extern double extGearRatio = 1.75;
 extern double driveWidth = 31;        // cm
 extern double maxSideFriction = 1650; // Newtons * 10^-2
 extern double robotMass = 7;          // kg
-
+double FLWT = 0;
 #define wheelDeg2cm(theta) ((deg2rad(theta) / extGearRatio) * wheelRadius)
 
 auto getWheelDis = [](motor Motor) -> double
@@ -219,11 +216,12 @@ PIDtype TURN;
 
 void init()
 {
-    hang.set(0);
+    hangL.set(0);
+    hangR.set(0);
     IMU.setRate(5);
     DRIVE.kp = 6;
     DRIVE.ki = 0.1;
-    DRIVE.kd = 43;
+    DRIVE.kd = 45;
     DRIVE.iStart = 5;
     DRIVE.iCap = 5;
     DRIVE.softLaunch = 0;
@@ -231,9 +229,9 @@ void init()
     DRIFT.ki = 0;
     DRIFT.kd = 0.1;
     DRIFT.softLaunch = 1;
-    TURN.kp = 2;//4.5;
-    TURN.kd = 14;//41;
-    TURN.ki = 0.35;//0.4;
+    TURN.kp = 2;    // 4.5;
+    TURN.kd = 14;   // 41;
+    TURN.ki = 0.35; // 0.4;
     TURN.iStart = 8;
     TURN.iCap = 30;
     TURN.softLaunch = 0;
@@ -394,7 +392,7 @@ void PIDTurn(double target, double tolerance = 1, double dThresh = 0.1, int stop
         Struct->output = cap(Struct->output, 100);
         drive(-Struct->output, Struct->output);
         vexDelay(10);
-        // cout << Struct->error<< " " << Struct->output << " " << Struct->derivative << endl;
+        // cout << Struct->error << " " << Struct->output << " " << Struct->derivative << endl;
     }
     drive(0);
     // cout << "final position " << getGyro << " " << Brain.Timer - startTime << endl;
@@ -500,12 +498,12 @@ void PIDDrive(double target, double tarAng = getGyro, double tolerance = 1, doub
         // display(10, 20, "%f", Struct->error);
         drive(Struct->output, Struct->output, tarAng, getGyro);
         delay(10);
-        // cout << Struct->error << " " << Struct->output << "   " << Struct->derivative << endl;
+        cout << Struct->error << " " << Struct->output << "   " << Struct->derivative << endl;
     }
     drive(0);
     wipeScreen;
     // display(10, 20, "final position:%f", (encoderValue(chassisLF) + encoderValue(chassisRF)) / 2);
-    // cout<<"final position"<<encoderValue(chassisLB)<<endl;
+    // cout << "final position" << encoderValue(chassisLB) << endl;
     // cout << "Time: " << Brain.Timer - startTime << endl;
 }
 
@@ -515,13 +513,13 @@ void PIDDrift_new(double baseSpeed, double maxDiff, double tarAng, int stopTime 
     Struct->insideTolerance = 0;
     int direction = sign(baseSpeed);
     int startTime = Brain.Timer;
-    // cout<<"newdrift"<<endl;
+    cout << "newdrift" << endl;
     while ((!Struct->insideTolerance || Struct->derivative > 5) && Brain.Timer - startTime < stopTime)
     {
         PIDCalc(Struct, tarAng - getGyro, tolerance); // PIDCalc(Struct, absAngDeg(tarAng - getGyro), tolerance);
         Struct->output = cap(Struct->output, maxDiff);
         drive(baseSpeed - Struct->output, baseSpeed + Struct->output);
-        // cout<<Struct->error<<" "<<Struct->output<<endl;
+        cout << Struct->error << " " << Struct->output << endl;
         delay(10);
     }
     cout << "enddrift" << endl;
@@ -551,83 +549,86 @@ void encoderDrive(double power, double target, double gyroTarget = getGyro, doub
 
 int WingFlag = 0;
 
-void SetWing(bool LF = 0, bool RF = 0, bool LB = 0, bool RB = 0){
+void SetWing(bool LF = 0, bool RF = 0, bool LB = 0, bool RB = 0)
+{
     leftFrontWing.set(LF);
     rightFrontWing.set(RF);
     leftWing.set(LB);
     rightWing.set(RB);
 }
 
-void autowing(){
-    switch(WingFlag){
-        case 0:
-            SetWing();
-            break;
-        case 1:
-            SetWing(0, 0, 1, 0);
-            break;
-        case 2:
-            SetWing();
-            break;
-        case 3:
-            SetWing(0, 0, 1, 0);
-            break;
-            case 4:
-                  SetWing(0, 0, 0, 1);
-                  break;
-            case 5:
-                  SetWing();
-                  break;
-            case 6:
-                  SetWing(1, 1, 0, 0);
-              break;
-            case 7:
-                  SetWing(0, 1, 0, 0);
-                  break;
-            case 8:
-                  SetWing();
-                  break;
-            case 9:
-                  SetWing(1, 1, 0, 0);
-                  break;
-            case 10:
-                  SetWing(0, 1, 0, 0);
-                  break;
-            // case 11:
-            //       SetWing();
-            //       break;
-            case 11:
-                  SetWing(1, 1, 0, 0);
-                  break;
-            case 12:
-                  SetWing(0, 1, 0, 0);
-                  break;
-            // case 14:
-            //       //SetWing();
-            //       WingFlag ++;
-            //       break;
-            case 13:
-                  SetWing(1, 1, 0, 0);
-                  break;
-            case 14:
-                  SetWing();
-                  break;
-            case 15:
-                  SetWing(0, 0, 0, 1);
-                  break;
-            case 16:
-                  SetWing();
-                  break;
-            case 17:
-                  SetWing(0, 0, 1, 0);
-                  break;
-            case 18:
-                  SetWing();
-                  hang.set(true);
-                  break;
-            default:
-                  SetWing();
-
+void autowing()
+{
+    switch (WingFlag)
+    {
+    case 0:
+        SetWing();
+        break;
+    case 1:
+        SetWing(0, 0, 1, 0);
+        break;
+    case 2:
+        SetWing();
+        break;
+    case 3:
+        SetWing(0, 0, 1, 0);
+        break;
+    case 4:
+        SetWing(0, 0, 0, 1);
+        break;
+    case 5:
+        SetWing();
+        break;
+    case 6:
+        SetWing(1, 1, 0, 0);
+        break;
+    case 7:
+        SetWing(0, 1, 0, 0);
+        break;
+    case 8:
+        SetWing();
+        break;
+    case 9:
+        SetWing(1, 1, 0, 0);
+        break;
+    case 10:
+        SetWing(0, 1, 0, 0);
+        break;
+    // case 11:
+    //       SetWing();
+    //       break;
+    case 11:
+        SetWing(1, 1, 0, 0);
+        break;
+    case 12:
+        SetWing(0, 1, 0, 0);
+        break;
+    // case 14:
+    //       //SetWing();
+    //       WingFlag ++;
+    //       break;
+    case 13:
+        SetWing(1, 1, 0, 0);
+        break;
+    case 14:
+        SetWing();
+        break;
+    case 15:
+        SetWing(0, 0, 0, 1);
+        break;
+    case 16:
+        SetWing();
+        break;
+    case 17:
+        SetWing(0, 0, 1, 0);
+        break;
+    case 18:
+        SetWing();
+        hangL.set(true);
+        hangR.set(true);
+        break;
+    default:
+        SetWing();
     }
 }
 #endif

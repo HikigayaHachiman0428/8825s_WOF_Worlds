@@ -18,22 +18,22 @@ void pre_auton(void)
 
 int autoStartTime = 0;
 
-bool djh_mode = 0;
-
 void autonomous(void)
 {
+  innerElimination();
+  // innerFAST();
   // _15s_out_quali_();
   // _15s_Out_arx_7_();
   // PIDDrive(-70, 0);
-  // PIDDrift_new(-40, 70, 44);
+  // PIDDrift_new(30, 70, -90);
   // _15s_in_6balls_safe();
   // _15s_in_quali_();
   // testBezier();
   // skills_with_odom();
   // skills_with_odom_stiff_goal();
-  genius_route();
+  // genius_route();
   // PIDDrive(60);
-  // PIDTurn(90, 1, 0.1);
+  // PIDTurn(90);
   // encoderDrive(20, 10000, 0, 500);
   // first = 0;
   // skills();
@@ -81,8 +81,7 @@ int printInfo()
     // controllerPrint(Cata.position(deg));
     // wipeScreen;
     display(10, 20, "                                                                  ");
-    display(10, 40, "                                                                  ");
-    display(10, 60, "                                                                  ");
+    display(10, 60, "               Gyro: %.2f                                         ", getGyro);
     display(10, 40, "drive: %.1f, %.1f, %.1f, %.1f, %.1f, %.1f",
             LF.temperature(celsius), LF.temperature(celsius), LF.temperature(celsius),
             LF.temperature(celsius), LF.temperature(celsius), LF.temperature(celsius));
@@ -94,7 +93,6 @@ int printInfo()
       // cout<<robotX<<" "<<robotY<<endl;
       cout << Odometry.pos.transpose() << endl;
     }
-    // cout<<driveEnc<<endl;
     switch (auton)
     {
     case 0:
@@ -124,7 +122,10 @@ int printInfo()
 void usercontrol(void)
 {
   PurePursuitFlag = 0;
-  Wing.set(0);
+  leftWing.set(0);
+  rightWing.set(0);
+  leftFrontWing.set(0);
+  rightFrontWing.set(0);
   // User control code here, inside the loop
 
   bool primed = 0;
@@ -189,7 +190,8 @@ void usercontrol(void)
 
     if (BU.PRESSED)
     {
-      hang.set(!hang.value());
+      hangL.set(!hangL.value());
+      hangR.set(!hangR.value());
     }
     // auton++;
     // if (BL.PRESSED && auton > 0)
@@ -318,6 +320,7 @@ int main()
   pre_auton();
   while (true)
   {
+    // cout << getGyro << endl;
     // cout << IMU.roll(deg) << endl;
     wait(100, msec);
   }

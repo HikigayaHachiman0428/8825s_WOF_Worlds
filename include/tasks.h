@@ -88,17 +88,28 @@ bool getCorner = 0;
 
 int closeWingHook()
 {
-    while (1){
-         if (getCorner){
-            while (getGyro < 140){
+    while (1)
+    {
+        if (getCorner)
+        {
+            while (getGyro < 140)
+            {
                 delay(10);
             }
             getCorner = 0;
             closeLeft;
-         }
-    delay(10);
+        }
+        delay(10);
     }
-
 }
 
+int robFirstWing()
+{
+    delay(FLWT);
+    openfrontRight;
+    delay(200);
+    closefrontRight;
+    FLWT = 0;
+    return 1;
+}
 #endif
