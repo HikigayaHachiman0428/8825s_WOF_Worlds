@@ -20,7 +20,8 @@ int autoStartTime = 0;
 
 void autonomous(void)
 {
-  innerElimination();
+  outer_alliance();
+  // innerElimination();
   // innerFAST();
   // _15s_out_quali_();
   // _15s_Out_arx_7_();

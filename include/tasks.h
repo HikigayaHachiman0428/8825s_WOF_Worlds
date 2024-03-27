@@ -105,11 +105,25 @@ int closeWingHook()
 
 int robFirstWing()
 {
-    delay(FLWT);
-    openfrontRight;
-    delay(200);
-    closefrontRight;
+    openfrontLeft;
+    delay(70);
+    closefrontLeft;
     FLWT = 0;
+    return 1;
+}
+double FRWT = 0;
+int delayFRWing()
+{
+    while (1)
+    {
+        if (FRWT != 0)
+        {
+            delay(FRWT);
+            rightFrontWing.set(!rightFrontWing.value());
+            FRWT = 0;
+        }
+        delay(10);
+    }
     return 1;
 }
 #endif

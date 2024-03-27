@@ -225,13 +225,13 @@ void init()
     DRIVE.iStart = 5;
     DRIVE.iCap = 5;
     DRIVE.softLaunch = 0;
-    DRIFT.kp = 2;
+    DRIFT.kp = 2.15;
     DRIFT.ki = 0;
-    DRIFT.kd = 0.1;
+    DRIFT.kd = 65;
     DRIFT.softLaunch = 1;
-    TURN.kp = 2;    // 4.5;
-    TURN.kd = 14;   // 41;
-    TURN.ki = 0.35; // 0.4;
+    TURN.kp = 2.2; // 4.5;
+    TURN.kd = 16.5;  // 41;
+    TURN.ki = 0.3; // 0.4;
     TURN.iStart = 8;
     TURN.iCap = 30;
     TURN.softLaunch = 0;
@@ -392,10 +392,10 @@ void PIDTurn(double target, double tolerance = 1, double dThresh = 0.1, int stop
         Struct->output = cap(Struct->output, 100);
         drive(-Struct->output, Struct->output);
         vexDelay(10);
-        // cout << Struct->error << " " << Struct->output << " " << Struct->derivative << endl;
+        cout << Struct->error << " " << Struct->output << " " << Struct->derivative << endl;
     }
     drive(0);
-    // cout << "final position " << getGyro << " " << Brain.Timer - startTime << endl;
+    cout << "final position " << getGyro << " " << Brain.Timer - startTime << endl;
 
     // display(10, 20, "final position:%f", ROTATION);
 }
@@ -498,7 +498,7 @@ void PIDDrive(double target, double tarAng = getGyro, double tolerance = 1, doub
         // display(10, 20, "%f", Struct->error);
         drive(Struct->output, Struct->output, tarAng, getGyro);
         delay(10);
-        cout << Struct->error << " " << Struct->output << "   " << Struct->derivative << endl;
+        // cout << Struct->error << " " << Struct->output << "   " << Struct->derivative << endl;
     }
     drive(0);
     wipeScreen;
@@ -513,16 +513,16 @@ void PIDDrift_new(double baseSpeed, double maxDiff, double tarAng, int stopTime 
     Struct->insideTolerance = 0;
     int direction = sign(baseSpeed);
     int startTime = Brain.Timer;
-    cout << "newdrift" << endl;
+    // cout << "newdrift" << endl;
     while ((!Struct->insideTolerance || Struct->derivative > 5) && Brain.Timer - startTime < stopTime)
     {
         PIDCalc(Struct, tarAng - getGyro, tolerance); // PIDCalc(Struct, absAngDeg(tarAng - getGyro), tolerance);
         Struct->output = cap(Struct->output, maxDiff);
         drive(baseSpeed - Struct->output, baseSpeed + Struct->output);
-        cout << Struct->error << " " << Struct->output << endl;
+        // cout << Struct->error << " " << Struct->output << endl;
         delay(10);
     }
-    cout << "enddrift" << endl;
+    // cout << "enddrift" << endl;
     drive(0);
 }
 

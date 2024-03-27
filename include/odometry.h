@@ -41,7 +41,7 @@ public:
     Matrix2d propCoeffs;
 
     double alpha, beta;
-
+    double verDeviDeg = 90, horDeviDeg = 0;
     Vector2d robotVelo;
 
     int veloUpdateCounter = 1;
@@ -62,16 +62,14 @@ public:
     void PID_Turn();
 };
 
-
 int trackingWrapper();
 
 /////////////////////
 
-
 odometry::odometry(Vector2d mountingPos_, double mountingAngle_, Vector2d initPos_, double initAngle_)
-    // : mountingPos(mountingPos_), mountingAngle(mountingAngle_), pos(initPos_), Drive_(_Drive_)
+// : mountingPos(mountingPos_), mountingAngle(mountingAngle_), pos(initPos_), Drive_(_Drive_)
 {
-    cout<<"debug"<<Rotate(mountingPos_, initAngle_)<<endl;
+    cout << "debug" << Rotate(mountingPos_, initAngle_) << endl;
     trackingPos = initPos_ + Rotate(mountingPos_, initAngle_);
     IMU.setRotation(rad2deg(initAngle_), rotationUnits::deg);
     mountingPos = mountingPos_;
@@ -82,6 +80,7 @@ void odometry::poseTracking()
 {
     // std::chrono::time_point<std::chrono::high_resolution_clock> loopStart, loopEnd;
     // std::chrono::duration<double, std::milli> loopTime = std::chrono::milliseconds(1), elapsed;
+
     sensor << robotX, robotY, deg2rad(getGyro + mountingAngle);
     lastSensor = sensor;
     veloUpdateCounter = 1;
@@ -92,9 +91,9 @@ void odometry::poseTracking()
         sensor << robotX, robotY, deg2rad(getGyro + mountingAngle);
         xrot = cstrAng(deg2rad(getGyro + mountingAngle));
         rot = cstrAng(deg2rad(getGyro + mountingAngle + 90));
-        robotVelo << sensor[0] - lastSensor[0], sensor[1] - lastSensor[1];
-
-        if(veloUpdateCounter <= 100) veloUpdateCounter ++;
+        robotVelo << (sensor[0] - lastSensor[0]) * cos(horDeviDeg / 180 * M_PI) + (sensor[1] - lastSensor[1]) * sin(verDeviDeg / 180 * M_PI), (sensor[1] - lastSensor[1]) * cos(horDeviDeg / 180 * M_PI) + (sensor[0] - lastSensor[0]) * sin(verDeviDeg / 180 * M_PI);
+        if (veloUpdateCounter <= 100)
+            veloUpdateCounter++;
         else
         {
             veloUpdateCounter = 0;
@@ -106,7 +105,7 @@ void odometry::poseTracking()
         delay(1);
         if (robotVelo.norm() == 0 && !forceUpdate)
             continue;
-        else if(forceUpdate)
+        else if (forceUpdate)
             forceUpdate = 0;
         alpha = lastSensor[2];
         beta = sensor[2];
@@ -126,7 +125,6 @@ void odometry::poseTracking()
         ///////////////////////////
         // loopEnd = chrono::high_resolution_clock::now();
         // this_thread::sleep_for(loopTime - (loopEnd - loopStart));
-        
     }
 }
 
@@ -156,7 +154,6 @@ double INITANGLE = 0;
 Vector2d MOUNTINGPOS = Vector2d(-6.5, -14.5); // center of rotation to tracking point
 double MOUNTINGANGLE = 0;
 
-
 odometry Odometry(MOUNTINGPOS, MOUNTINGANGLE, INITPOS, INITANGLE);
 
 int trackingWrapper()
@@ -164,6 +161,5 @@ int trackingWrapper()
     Odometry.poseTracking();
     return 0;
 }
-
 
 #endif
